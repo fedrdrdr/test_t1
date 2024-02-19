@@ -21,59 +21,72 @@ function parseTree(input) {
   let currentNode = null;
   let currentNum = '';
   let rootNode = null;
-  console.log("rootNode",rootNode);
+  
+  let openBrackets = 0;
+  let closeBrackets = 0;
+
   for (let i = 0; i < input.length; i++) {
     const char = input[i];
+    
 
     if (char === '(') {
+        openBrackets++;
         if (!rootNode) {
             rootNode = { value: null, children: [] };
             currentNode = rootNode;
-            console.log("currentNode",currentNode)
         } else if (currentNode) {
             const newNode = { value: parseInt(currentNum), children: [] };
             currentNode.children.push(newNode);
             stack.push(currentNode);
-            console.log("currentNode",currentNode)
             currentNode = newNode;
             currentNum = '';
         }
     } else if (char === ')') {
+        closeBrackets++;
         if (currentNum !== '') {
             currentNode.children.push({ value: parseInt(currentNum), children: [] });
             currentNum = '';
         }
-        if (stack.length === 0) {
+
+        if (stack.length === 0 && char!==")") {
+          
             console.error('Неправильное определение дерева: неверное количество закрывающих скобок');
+            console.log('Открывающих скобок:', openBrackets, 'Закрывающих скобок:', closeBrackets);
             return null;
         }
         currentNode = stack.pop();
     } else if (char === ' ') {
         if (currentNum !== '') {
+            if (currentNode === null) {
+                console.error('Ошибка: пробел в неправильном месте.');
+                return null;
+            }
             currentNode.children.push({ value: parseInt(currentNum), children: [] });
             currentNum = '';
         }
     } else {
         currentNum += char;
     }
+
   }
 
   if (currentNum !== '') {
-      currentNode.children.push({ value: parseInt(currentNum), children: [] });
-  }
-
-  if (stack.length !== 0) {
-      console.error('Неправильное определение дерева: неверное количество открывающих скобок');
-      return null;
+    currentNode.children.push({ value: parseInt(currentNum), children: [] });
+    currentNum = '';
   }
 
   if (!rootNode) {
-      console.error('Неправильное определение дерева: отсутствует корень');
-      return null;
+    console.error('Неправильное определение дерева: отсутствует корень');
+    return null;
   }
-console.log("rootNode",rootNode);
+
+  console.log('Открывающих скобок:', openBrackets, 'Закрывающих скобок:', closeBrackets);
   return rootNode;
 }
+
+
+
+
 
 
 function visualizeTree(tree, depth = 0) {
